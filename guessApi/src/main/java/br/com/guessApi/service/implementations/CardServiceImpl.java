@@ -1,8 +1,10 @@
 package br.com.guessApi.service.implementations;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ public class CardServiceImpl implements CardService {
 	public void store(CardUpdateObject newCard) throws CardException {
 		LOGGER.info("[CARDSERVICEIMPL]: Tentando salvar novo card");
 		try {
-			CardEntity card = new CardEntity(null, UUID.randomUUID(), newCard.question(), newCard.photo(), newCard.level());
+			CardEntity card = new CardEntity(null, UUID.randomUUID().toString(), newCard.question(), newCard.photo(), newCard.level());
 			this.cardRepository.save(card);
 			LOGGER.info("[CARDSERVICEIMPL]: CARD SALVO COM SUCESSO! E COM IDENTIFIER: " + card.getIdentifier());
 		} catch (Exception e) {
@@ -40,16 +42,41 @@ public class CardServiceImpl implements CardService {
 	}
 
 	@Override
-	public void update(UUID identifier, CardUpdateObject newCard) throws CardException {
-		// TODO Auto-generated method stub
+	public void update(String identifier, CardUpdateObject newCard) throws CardException {
 
+		  LOGGER.info("[CARDSERVICEIMPL]: Iniciando a atualização do card com identifier: " + identifier);
+
+		    try {
+		        CardEntity existingCard = cardRepository.findByIdentifier(identifier)
+		            .orElseThrow(() -> new CardException("Card com identifier " + identifier + " não encontrado."));
+
+		        existingCard.setQuestion(
+		            (newCard.question() != null && !newCard.question().isBlank()) ? newCard.question() : existingCard.getQuestion()
+		        );
+		        
+		        existingCard.setPhoto(
+		            (newCard.photo() != null && !newCard.photo().isBlank()) ? newCard.photo() : existingCard.getPhoto()
+		        );
+		        
+		        existingCard.setLevel(
+		            (newCard.level() != null) ? newCard.level() : existingCard.getLevel()
+		        );
+
+		        cardRepository.save(existingCard);
+
+		        LOGGER.info("[CARDSERVICEIMPL]: Sucesso na atualização do card com identifier: " + identifier);
+		    } catch (Exception e) {
+		        LOGGER.error("[CARDSERVICEIMPL]: Erro na atualização do card com identifier: " + identifier, e);
+		        throw new CardException("Erro ao atualizar o card: " + e.getMessage());
+		    }
 	}
 
 	@Override
-	public void delete(UUID identifier) throws CardException {
+	public void delete(String identifier) throws CardException {
 		LOGGER.info("[CARDSERVICEIMPL]: Tentando salvar novo card");
 		try {
-			CardEntity findByIdentifier = this.cardRepository.findByIdentifier(identifier).orElseThrow();
+			CardEntity findByIdentifier = this.cardRepository.findByIdentifier(identifier)
+					.orElseThrow(() -> new CardException("Card com identifier " + identifier + " não encontrado."));
 			this.cardRepository.delete(findByIdentifier);
 			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO AO DELETAR CARD COM IDENTIFIER: " + identifier);
 		} catch (Exception e) {
@@ -73,15 +100,16 @@ public class CardServiceImpl implements CardService {
 	}
 
 	@Override
-	public CardEntity getByUUID(UUID identifier) throws CardException {
-		LOGGER.info("[CARDSERVICEIMPL]: Tentando salvar novo card");
+	public CardEntity getByUUID(String identifier) throws CardException {
+		LOGGER.info("[CARDSERVICEIMPL]: Iniciando a busca do card de identificador : " + identifier);
 		try {
-			CardEntity findByIdentifier = this.cardRepository.findByIdentifier(identifier).orElseThrow();
+			CardEntity findByIdentifier = this.cardRepository.findByIdentifier(identifier)
+					.orElseThrow(() -> new CardException("Card com identifier " + identifier + " não encontrado."));
 			
-			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO AO DELETAR CARD COM IDENTIFIER: " + identifier);
+			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO NA BUSCA DO CARD COM IDENTIFIER: " + identifier);
 			return findByIdentifier;
 		} catch (Exception e) {
-			LOGGER.error("[CARDSERVICEIMPL]: ERRO AO DELETAR CARD COM IDENTIFIER: " + identifier);
+			LOGGER.error("[CARDSERVICEIMPL]: ERRO AO BUSCAR CARD COM IDENTIFIER: " + identifier);
 			throw new CardException(e.getMessage());
 		}
 
@@ -89,14 +117,30 @@ public class CardServiceImpl implements CardService {
 
 	@Override
 	public List<CardEntity> getByLevel(LevelType level) throws CardException {
-		// TODO Auto-generated method stub
-		return null;
+		LOGGER.info("[CARDSERVICEIMPL]: Iniciando a busca dos cards de level : " + level.name());
+		try {
+			List<CardEntity> findByLevel = this.cardRepository.findListByLevel(level)
+					.orElseThrow(() -> new CardException("Card com level " + level.name() + " não encontrado."));
+			
+			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO NA BUSCA DOS CARDS COM LEVEL: " + level.name());
+			return findByLevel;
+		} catch (Exception e) {
+			LOGGER.error("[CARDSERVICEIMPL]: ERRO NA BUSCA DOS CARDS COM LEVEL: " + level.name());
+			throw new CardException(e.getMessage());
+		}
 	}
 
 	@Override
 	public List<CardEntity> getRandoByLimit(int limit) throws CardException {
-		// TODO Auto-generated method stub
-		return null;
+		 LOGGER.info("[CARDSERVICEIMPL]: Iniciando a busca de cards com limite de: " + limit);
+		    try {
+		        List<CardEntity> allCards = this.cardRepository.findAll();
+		        Collections.shuffle(allCards); 
+		        return allCards.stream().limit(limit).collect(Collectors.toList()); 
+		    } catch (Exception e) {
+		        LOGGER.error("[CARDSERVICEIMPL]: Erro ao buscar cards com limite de: " + limit, e);
+		        throw new CardException(e.getMessage());
+		    }
 	}
 
 }

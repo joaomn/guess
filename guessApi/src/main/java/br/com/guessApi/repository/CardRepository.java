@@ -14,6 +14,6 @@ public interface CardRepository extends JpaRepository<CardEntity, Integer>{
 
 	Optional<List<CardEntity>> findListByLevel (LevelType level);
 	
-	Optional<CardEntity> findByIdentifier(UUID identifier);
+	Optional<CardEntity> findByIdentifier(String identifier);
 	
 }

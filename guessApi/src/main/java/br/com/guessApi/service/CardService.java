@@ -13,13 +13,13 @@ public interface CardService {
 
 public void store(CardUpdateObject newCard)	throws CardException;
 
-public void update(UUID identifier, CardUpdateObject newCard) throws CardException;
+public void update(String identifier, CardUpdateObject newCard) throws CardException;
 
-public void delete (UUID identifier) throws CardException;
+public void delete (String identifier) throws CardException;
 
 public List<CardEntity> getAll() throws CardException;
 
-public CardEntity getByUUID(UUID identifier)throws CardException;
+public CardEntity getByUUID(String identifier)throws CardException;
 
 public List<CardEntity> getByLevel(LevelType level) throws CardException;
 

@@ -28,7 +28,7 @@ public class CardEntity {
 	private Integer id;
 	
 	@NotBlank(message = "Field Identifier is Required")
-	private UUID identifier;
+	private String identifier;
 	
 	@Column(unique = true)
 	@NotBlank(message = "Field Question is Required")
