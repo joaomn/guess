@@ -8,13 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 
 import br.com.guessApi.entitys.CardEntity;
@@ -39,10 +40,15 @@ public class CardServiceImplTest {
 
     @Autowired
     private CardServiceImpl cardService;
+    
 
-    @BeforeAll
-    void setUp() {
-        mysqlContainer.start();
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        mysqlContainer.start(); // Start container before setting properties
+        registry.add("spring.datasource.url", mysqlContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", mysqlContainer::getUsername);
+        registry.add("spring.datasource.password", mysqlContainer::getPassword);
     }
 
     @AfterAll
@@ -140,7 +146,7 @@ public class CardServiceImplTest {
             cardService.update(nonExistentIdentifier, updatedCard);
         });
 
-        String expectedMessage = "Card com identifier " + nonExistentIdentifier + " não encontrado."; 
+        String expectedMessage = "Erro ao atualizar o card"; 
         assertTrue(exception.getMessage().contains(expectedMessage));
     }
 
@@ -152,7 +158,7 @@ public class CardServiceImplTest {
             cardService.delete(nonExistentIdentifier);
         });
 
-        String expectedMessage = "Card com identifier " + nonExistentIdentifier + " não encontrado."; 
+        String expectedMessage = "ERRO AO DELETAR O CARD"; 
         assertTrue(exception.getMessage().contains(expectedMessage));
     }
 
@@ -164,20 +170,20 @@ public class CardServiceImplTest {
             cardService.getByUUID(nonExistentIdentifier);
         });
 
-        String expectedMessage = "Card com identifier " + nonExistentIdentifier + " não encontrado.";
+        String expectedMessage = "ERRO AO RETORNAR CARD";
         assertTrue(exception.getMessage().contains(expectedMessage));
     }
 
-//    @Test
-//    void testStoreCardWithInvalidData() {
-//        CardUpdateObject newCard = new CardUpdateObject(null, "url.com.foto", LevelType.EASY);
-//
-//        Exception exception = assertThrows(CardException.class, () -> {
-//            cardService.store(newCard);
-//        });
-//
-//        String expectedMessage = "Field Question is Required"; 
-//        assertTrue(exception.getMessage().contains(expectedMessage));
-//    }
+    @Test
+    void testStoreCardWithInvalidData() {
+        CardUpdateObject newCard = new CardUpdateObject(null, "url.com.foto", LevelType.EASY);
+
+        Exception exception = assertThrows(CardException.class, () -> {
+            cardService.store(newCard);
+        });
+
+        String expectedMessage = "ERRO AO SALVAR CARD"; 
+        assertTrue(exception.getMessage().contains(expectedMessage));
+    }
 
 }

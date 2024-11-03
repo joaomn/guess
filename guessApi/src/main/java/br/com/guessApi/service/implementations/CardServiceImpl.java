@@ -14,6 +14,7 @@ import br.com.guessApi.entitys.CardEntity;
 import br.com.guessApi.entitys.dtos.CardUpdateObject;
 import br.com.guessApi.enums.LevelType;
 import br.com.guessApi.exceptions.CardException;
+import br.com.guessApi.exceptions.OutLimitCardsException;
 import br.com.guessApi.repository.CardRepository;
 import br.com.guessApi.service.CardService;
 
@@ -28,15 +29,16 @@ public class CardServiceImpl implements CardService {
 	}
 
 	@Override
-	public void store(CardUpdateObject newCard) throws CardException {
+	public CardEntity store(CardUpdateObject newCard) throws CardException {
 		LOGGER.info("[CARDSERVICEIMPL]: Tentando salvar novo card");
 		try {
 			CardEntity card = new CardEntity(null, UUID.randomUUID().toString(), newCard.question(), newCard.photo(), newCard.level());
-			this.cardRepository.save(card);
-			LOGGER.info("[CARDSERVICEIMPL]: CARD SALVO COM SUCESSO! E COM IDENTIFIER: " + card.getIdentifier());
-		} catch (Exception e) {
+			 this.cardRepository.save(card);
+			 LOGGER.info("[CARDSERVICEIMPL]: CARD SALVO COM SUCESSO! E COM IDENTIFIER: " + card.getIdentifier());
+			 return card;
+		} catch (RuntimeException e) {
 			LOGGER.error("[CARDSERVICEIMPL]: ERRO AO PERSISITR CARD");
-			throw new CardException(e.getMessage());
+			throw new CardException("ERRO AO SALVAR CARD");
 		}
 
 	}
@@ -65,9 +67,9 @@ public class CardServiceImpl implements CardService {
 		        cardRepository.save(existingCard);
 
 		        LOGGER.info("[CARDSERVICEIMPL]: Sucesso na atualização do card com identifier: " + identifier);
-		    } catch (Exception e) {
+		    } catch (RuntimeException e) {
 		        LOGGER.error("[CARDSERVICEIMPL]: Erro na atualização do card com identifier: " + identifier, e);
-		        throw new CardException("Erro ao atualizar o card: " + e.getMessage());
+		        throw new CardException("Erro ao atualizar o card");
 		    }
 	}
 
@@ -79,9 +81,9 @@ public class CardServiceImpl implements CardService {
 					.orElseThrow(() -> new CardException("Card com identifier " + identifier + " não encontrado."));
 			this.cardRepository.delete(findByIdentifier);
 			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO AO DELETAR CARD COM IDENTIFIER: " + identifier);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			LOGGER.error("[CARDSERVICEIMPL]: ERRO AO DELETAR CARD COM IDENTIFIER: " + identifier);
-			throw new CardException(e.getMessage());
+			throw new CardException("ERRO AO DELETAR O CARD");
 		}
 
 	}
@@ -93,9 +95,9 @@ public class CardServiceImpl implements CardService {
 		try {
 			 return this.cardRepository.findAll();
 			
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			LOGGER.error("[CARDSERVICEIMPL]: erro ao retornar cards");
-			throw new CardException( e.getMessage());
+			throw new CardException(" ERRO AO LISTAR TODOS OS CARDS");
 		}
 	}
 
@@ -108,9 +110,9 @@ public class CardServiceImpl implements CardService {
 			
 			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO NA BUSCA DO CARD COM IDENTIFIER: " + identifier);
 			return findByIdentifier;
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			LOGGER.error("[CARDSERVICEIMPL]: ERRO AO BUSCAR CARD COM IDENTIFIER: " + identifier);
-			throw new CardException(e.getMessage());
+			throw new CardException("ERRO AO RETORNAR CARD");
 		}
 
 	}
@@ -124,23 +126,48 @@ public class CardServiceImpl implements CardService {
 			
 			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO NA BUSCA DOS CARDS COM LEVEL: " + level.name());
 			return findByLevel;
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			LOGGER.error("[CARDSERVICEIMPL]: ERRO NA BUSCA DOS CARDS COM LEVEL: " + level.name());
-			throw new CardException(e.getMessage());
+			throw new CardException("ERRO NA OPERAÇÃO GETBYLEVEL");
 		}
 	}
 
 	@Override
 	public List<CardEntity> getRandoByLimit(int limit) throws CardException {
 		 LOGGER.info("[CARDSERVICEIMPL]: Iniciando a busca de cards com limite de: " + limit);
+		 
+			List<CardEntity> allCards = this.cardRepository.findAll();
+			if (allCards.size() < limit) {
+				LOGGER.error("[CARDSERVICEIMPL]: Desculpe, nosso baralho só vai até {} cartas ", allCards.size());
+				throw new OutLimitCardsException("Numero pedido de cartas superou o nosso deck que tem um total de " + allCards.size() + " cartas");
+			}
 		    try {
-		        List<CardEntity> allCards = this.cardRepository.findAll();
 		        Collections.shuffle(allCards); 
 		        return allCards.stream().limit(limit).collect(Collectors.toList()); 
-		    } catch (Exception e) {
+		    } catch (RuntimeException e) {
 		        LOGGER.error("[CARDSERVICEIMPL]: Erro ao buscar cards com limite de: " + limit, e);
-		        throw new CardException(e.getMessage());
+		        throw new CardException("ERRO NA OPERAÇÃO GETBYLIMIT");
 		    }
+	}
+
+	@Override
+	public Integer getCountDeck() throws OutLimitCardsException {
+		LOGGER.info("[CARDSERVICEIMPL]: Iniciando a contagem das cartas existentes no deck" );
+		try {
+			
+			
+			List<CardEntity> allCards = this.cardRepository.findAll();
+			
+			Integer total = allCards.size();
+					
+			
+			LOGGER.info("[CARDSERVICEIMPL]: SUCESSO NA CONTAGEM DAS CARTAS, ATUALMENTE TEMOS UM TOTAL DE : {} CARTAS", 	total );
+			return total;
+		} catch (OutLimitCardsException e) {
+			LOGGER.error("[CARDSERVICEIMPL]: ERRO NA CONTAGEM DAS CARTAS ");
+			throw new OutLimitCardsException("ERRO NA CONTAGEM DAS CARTAS");
+		}
+		
 	}
 
 }
