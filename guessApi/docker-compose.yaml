@@ -1,0 +1,31 @@
+version: '3'
+services:
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=guess'
+      - 'MYSQL_PASSWORD=BHUvgy7'
+      - 'MYSQL_ROOT_PASSWORD=BHUvgy7'
+      - 'MYSQL_USER=banco'
+    ports:
+      - '3306'
+    networks:
+      - mynetwork
+
+  spring-app:
+    build: .
+    depends_on:
+      - mysql
+    ports:
+      - '8080:8080'
+    environment:
+      - 'SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/guess'
+      - 'SPRING_DATASOURCE_USERNAME=banco'
+      - 'SPRING_DATASOURCE_PASSWORD=BHUvgy7'
+    networks:
+      - mynetwork
+
+  
+networks:
+  mynetwork:
+    driver: bridge
