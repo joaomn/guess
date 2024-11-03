@@ -29,7 +29,7 @@ cd guessApi
 ### 1.1 Ou pode baixar apenas a imagem do docker hub
 
 ```bash
-docker pull jhonyamn/guessapi
+docker pull jhonyamn/guessapi:1.0
 
 ```
 
