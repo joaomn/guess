@@ -1,3 +1,8 @@
+# Guess - API
+
+Aplicação que serve de bakcend para o jogo de cartas desenvolvido na faculdade na disciplina de ingles
+
+
 ## Tecnologias Utilizadas
 
 - **Spring Boot 3**
