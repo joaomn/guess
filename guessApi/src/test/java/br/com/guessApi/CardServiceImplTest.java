@@ -63,7 +63,7 @@ public class CardServiceImplTest {
 
     @Test
     void testStoreCard() throws CardException {
-        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?", "url.com.foto", LevelType.EASY);
+        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?","Paris", "url.com.foto", LevelType.EASY);
         cardService.store(newCard);
 
         List<CardEntity> cards = cardService.getAll();
@@ -73,11 +73,11 @@ public class CardServiceImplTest {
 
     @Test
     void testUpdateCard() throws CardException {
-        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?", "url.com.foto", LevelType.EASY);
+        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?","Paris", "url.com.foto", LevelType.EASY);
         cardService.store(newCard);
 
         String identifier = cardService.getAll().get(0).getIdentifier();
-        CardUpdateObject updatedCard = new CardUpdateObject("Qual é a capital da Alemanha?", null, null);
+        CardUpdateObject updatedCard = new CardUpdateObject("Qual é a capital da Alemanha?","Berlim", null, null);
         cardService.update(identifier, updatedCard);
 
         CardEntity updatedEntity = cardService.getByUUID(identifier);
@@ -86,7 +86,7 @@ public class CardServiceImplTest {
 
     @Test
     void testDeleteCard() throws CardException {
-        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?", "url.com.foto", LevelType.EASY);
+        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?","Paris", "url.com.foto", LevelType.EASY);
         cardService.store(newCard);
 
         String identifier = cardService.getAll().get(0).getIdentifier();
@@ -98,8 +98,8 @@ public class CardServiceImplTest {
 
     @Test
     void testGetAllCards() throws CardException {
-        cardService.store(new CardUpdateObject("Qual é a capital da França?", "url.com.foto", LevelType.EASY));
-        cardService.store(new CardUpdateObject("Qual é a capital da Alemanha?", "url.com.foto2", LevelType.MEDIUM));
+        cardService.store(new CardUpdateObject("Qual é a capital da França?","Paris", "url.com.foto", LevelType.EASY));
+        cardService.store(new CardUpdateObject("Qual é a capital da Alemanha?","Berlim", "url.com.foto2", LevelType.MEDIUM));
 
         List<CardEntity> cards = cardService.getAll();
         assertEquals(2, cards.size());
@@ -107,7 +107,7 @@ public class CardServiceImplTest {
     
     @Test
     void testGetByUUID() throws CardException {
-        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?", "url.com.foto", LevelType.EASY);
+        CardUpdateObject newCard = new CardUpdateObject("Qual é a capital da França?","Paris", "url.com.foto", LevelType.EASY);
         cardService.store(newCard);
 
         String identifier = cardService.getAll().get(0).getIdentifier();
@@ -117,9 +117,9 @@ public class CardServiceImplTest {
 
     @Test
     void testGetByLevel() throws CardException {
-        cardService.store(new CardUpdateObject("Qual é a capital da França?", "url.com.foto", LevelType.EASY));
-        cardService.store(new CardUpdateObject("Qual é a capital da Alemanha?", "url.com.foto2", LevelType.MEDIUM));
-        cardService.store(new CardUpdateObject("Qual é a capital do Brasil?", "url.com.foto3", LevelType.EASY));
+        cardService.store(new CardUpdateObject("Qual é a capital da França?","Paris", "url.com.foto", LevelType.EASY));
+        cardService.store(new CardUpdateObject("Qual é a capital da Alemanha?","Berlim", "url.com.foto2", LevelType.MEDIUM));
+        cardService.store(new CardUpdateObject("Qual é a capital do Brasil?","Brasilia", "url.com.foto3", LevelType.EASY));
 
         List<CardEntity> easyCards = cardService.getByLevel(LevelType.EASY);
         assertEquals(2, easyCards.size());
@@ -128,9 +128,9 @@ public class CardServiceImplTest {
 
     @Test
     void testGetRandoByLimit() throws CardException {
-        cardService.store(new CardUpdateObject("Qual é a capital da França?", "url.com.foto", LevelType.EASY));
-        cardService.store(new CardUpdateObject("Qual é a capital da Alemanha?", "url.com.foto2", LevelType.MEDIUM));
-        cardService.store(new CardUpdateObject("Qual é a capital do Brasil?", "url.com.foto3", LevelType.EASY));
+        cardService.store(new CardUpdateObject("Qual é a capital da França?","Paris", "url.com.foto", LevelType.EASY));
+        cardService.store(new CardUpdateObject("Qual é a capital da Alemanha?","Berlim", "url.com.foto2", LevelType.MEDIUM));
+        cardService.store(new CardUpdateObject("Qual é a capital do Brasil?","Brasilia", "url.com.foto3", LevelType.EASY));
 
         List<CardEntity> randomCards = cardService.getRandoByLimit(2);
         assertEquals(2, randomCards.size());
@@ -139,7 +139,7 @@ public class CardServiceImplTest {
     
     @Test
     void testUpdateNonExistentCard() {
-        CardUpdateObject updatedCard = new CardUpdateObject("Qual é a capital da Alemanha?", "url.com.foto", LevelType.EASY);
+        CardUpdateObject updatedCard = new CardUpdateObject("Qual é a capital da Alemanha?","Berlim", "url.com.foto2", LevelType.MEDIUM);
         String nonExistentIdentifier = "non-existent-uuid";
 
         Exception exception = assertThrows(CardException.class, () -> {
@@ -176,7 +176,7 @@ public class CardServiceImplTest {
 
     @Test
     void testStoreCardWithInvalidData() {
-        CardUpdateObject newCard = new CardUpdateObject(null, "url.com.foto", LevelType.EASY);
+        CardUpdateObject newCard = new CardUpdateObject(null, null, "url.com.foto", LevelType.EASY);
 
         Exception exception = assertThrows(CardException.class, () -> {
             cardService.store(newCard);

@@ -34,6 +34,9 @@ public class CardEntity {
 	@NotBlank(message = "Field Question is Required")
 	private String question;
 	
+	@Column(unique = true)
+	@NotBlank(message = "Field Question is awnser")
+	private String awnser;
 	
 	private String photo;
 	

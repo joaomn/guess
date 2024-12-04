@@ -32,7 +32,7 @@ public class CardServiceImpl implements CardService {
 	public CardEntity store(CardUpdateObject newCard) throws CardException {
 		LOGGER.info("[CARDSERVICEIMPL]: Tentando salvar novo card");
 		try {
-			CardEntity card = new CardEntity(null, UUID.randomUUID().toString(), newCard.question(), newCard.photo(), newCard.level());
+			CardEntity card = new CardEntity(null, UUID.randomUUID().toString(), newCard.question(),newCard.awnser(), newCard.photo(), newCard.level());
 			 this.cardRepository.save(card);
 			 LOGGER.info("[CARDSERVICEIMPL]: CARD SALVO COM SUCESSO! E COM IDENTIFIER: " + card.getIdentifier());
 			 return card;
@@ -59,6 +59,10 @@ public class CardServiceImpl implements CardService {
 		        existingCard.setPhoto(
 		            (newCard.photo() != null && !newCard.photo().isBlank()) ? newCard.photo() : existingCard.getPhoto()
 		        );
+		        
+		        existingCard.setAwnser(
+			            (newCard.awnser() != null && !newCard.awnser().isBlank()) ? newCard.awnser() : existingCard.getAwnser()
+			        );
 		        
 		        existingCard.setLevel(
 		            (newCard.level() != null) ? newCard.level() : existingCard.getLevel()

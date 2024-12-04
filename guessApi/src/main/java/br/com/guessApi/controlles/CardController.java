@@ -39,7 +39,7 @@ public class CardController {
 	public ResponseEntity<CardRecordResponse> store(@Valid @RequestBody CardUpdateObject card) {
 		CardEntity newCard = cardService.store(card);
 		return ResponseEntity.status(HttpStatus.CREATED).body(new CardRecordResponse(newCard.getIdentifier(),
-				card.question(), card.photo(), card.level(), "Criado com sucesso!"));
+				card.question(),card.awnser(), card.photo(), card.level(), "Criado com sucesso!"));
 	}
 
 	@Operation(description = "Obter todos os cards")
@@ -50,7 +50,7 @@ public class CardController {
 		if (all.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
-		list = all.stream().map(card -> new CardRecordResponse(card.getIdentifier(), card.getQuestion(),
+		list = all.stream().map(card -> new CardRecordResponse(card.getIdentifier(), card.getQuestion(),card.getAwnser(),
 				card.getPhoto(), card.getLevel(), "")).collect(Collectors.toList());
 		return ResponseEntity.status(HttpStatus.OK).body(list);
 
@@ -62,10 +62,10 @@ public class CardController {
 
 		CardEntity obj = cardService.getByUUID(identifier);
 		if (obj.getIdentifier() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CardRecordResponse(null, null, null, null, "Identifier não existe ou foi digitado errado"));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CardRecordResponse(null, null,null, null, null, "Identifier não existe ou foi digitado errado"));
 		}
 		
-		CardRecordResponse response = new CardRecordResponse(obj.getIdentifier(), obj.getQuestion(), obj.getPhoto(), obj.getLevel(), "");
+		CardRecordResponse response = new CardRecordResponse(obj.getIdentifier(), obj.getQuestion(),obj.getAwnser(), obj.getPhoto(), obj.getLevel(), "");
 		
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 
@@ -124,7 +124,7 @@ public class CardController {
 			if (all.isEmpty()) {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
-			list = all.stream().map(card -> new CardRecordResponse(card.getIdentifier(), card.getQuestion(),
+			list = all.stream().map(card -> new CardRecordResponse(card.getIdentifier(), card.getQuestion(),card.getAwnser(),
 					card.getPhoto(), card.getLevel(), "")).collect(Collectors.toList());
 			return ResponseEntity.status(HttpStatus.OK).body(list);
 	}
@@ -139,7 +139,7 @@ public class CardController {
 			if (all.isEmpty()) {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
-			list = all.stream().map(card -> new CardRecordResponse(card.getIdentifier(), card.getQuestion(),
+			list = all.stream().map(card -> new CardRecordResponse(card.getIdentifier(), card.getQuestion(),card.getAwnser(),
 					card.getPhoto(), card.getLevel(), "")).collect(Collectors.toList());
 			return ResponseEntity.status(HttpStatus.OK).body(list);
 	}
